@@ -86,6 +86,7 @@ func (p *QlikProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 func (p *QlikProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewAppResource,
+		NewAppScriptResource,
 	}
 }
 
