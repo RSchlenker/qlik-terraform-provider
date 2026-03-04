@@ -78,5 +78,8 @@ jobs:
       - run: go mod download
       - env:
           TF_ACC: "1"
+          QLIK_TENANT_ID: ${{ secrets.QLIK_TENANT_ID }}
+          QLIK_REGION: ${{ secrets.QLIK_REGION }}
+          QLIK_API_KEY: ${{ secrets.QLIK_API_KEY }}
         run: go test -v -cover ./internal/provider/
         timeout-minutes: 10

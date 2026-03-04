@@ -5,104 +5,97 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/ephemeral"
-	"github.com/hashicorp/terraform-plugin-framework/function"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/rschlenker/qlik-terraform-provider/internal/sdk/qlikapps"
 )
 
-// Ensure ScaffoldingProvider satisfies various provider interfaces.
-var _ provider.Provider = &ScaffoldingProvider{}
-var _ provider.ProviderWithFunctions = &ScaffoldingProvider{}
-var _ provider.ProviderWithEphemeralResources = &ScaffoldingProvider{}
-var _ provider.ProviderWithActions = &ScaffoldingProvider{}
+// Ensure QlikProvider satisfies the provider interface.
+var _ provider.Provider = &QlikProvider{}
 
-// ScaffoldingProvider defines the provider implementation.
-type ScaffoldingProvider struct {
-	// version is set to the provider version on release, "dev" when the
-	// provider is built and ran locally, and "test" when running acceptance
-	// testing.
+// QlikProvider defines the provider implementation.
+type QlikProvider struct {
 	version string
 }
 
-// ScaffoldingProviderModel describes the provider data model.
-type ScaffoldingProviderModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
+// QlikProviderModel describes the provider data model.
+type QlikProviderModel struct {
+	TenantId types.String `tfsdk:"tenant_id"`
+	Region   types.String `tfsdk:"region"`
+	ApiKey   types.String `tfsdk:"api_key"`
 }
 
-func (p *ScaffoldingProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "scaffolding"
+func (p *QlikProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+	resp.TypeName = "qlik"
 	resp.Version = p.version
 }
 
-func (p *ScaffoldingProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *QlikProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
-				Optional:            true,
+			"tenant_id": schema.StringAttribute{
+				MarkdownDescription: "Qlik Cloud tenant subdomain (e.g. `pflege-abc`).",
+				Required:            true,
+			},
+			"region": schema.StringAttribute{
+				MarkdownDescription: "Qlik Cloud region code (e.g. `de`, `eu`, `us`).",
+				Required:            true,
+			},
+			"api_key": schema.StringAttribute{
+				MarkdownDescription: "Qlik Cloud API key (used as a Bearer token).",
+				Required:            true,
+				Sensitive:           true,
 			},
 		},
 	}
 }
 
-func (p *ScaffoldingProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	var data ScaffoldingProviderModel
+func (p *QlikProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	var data QlikProviderModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
-
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Endpoint.IsNull() { /* ... */ }
+	baseURL := fmt.Sprintf("https://%s.%s.qlikcloud.com", data.TenantId.ValueString(), data.Region.ValueString())
+	apiKey := data.ApiKey.ValueString()
 
-	// Example client configuration for data sources and resources
-	client := http.DefaultClient
+	client, err := qlikapps.NewClientWithResponses(
+		baseURL,
+		qlikapps.WithRequestEditorFn(func(ctx context.Context, req *http.Request) error {
+			req.Header.Set("Authorization", "Bearer "+apiKey)
+			return nil
+		}),
+	)
+	if err != nil {
+		resp.Diagnostics.AddError("Failed to create Qlik API client", err.Error())
+		return
+	}
+
 	resp.DataSourceData = client
 	resp.ResourceData = client
 }
 
-func (p *ScaffoldingProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *QlikProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewExampleResource,
+		NewAppResource,
 	}
 }
 
-func (p *ScaffoldingProvider) EphemeralResources(ctx context.Context) []func() ephemeral.EphemeralResource {
-	return []func() ephemeral.EphemeralResource{
-		NewExampleEphemeralResource,
-	}
-}
-
-func (p *ScaffoldingProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
-		NewExampleDataSource,
-	}
-}
-
-func (p *ScaffoldingProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewExampleFunction,
-	}
-}
-
-func (p *ScaffoldingProvider) Actions(ctx context.Context) []func() action.Action {
-	return []func() action.Action{
-		NewExampleAction,
-	}
+func (p *QlikProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+	return []func() datasource.DataSource{}
 }
 
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
-		return &ScaffoldingProvider{
+		return &QlikProvider{
 			version: version,
 		}
 	}

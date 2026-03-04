@@ -1,0 +1,20 @@
+# Copyright (c) HashiCorp, Inc.
+# SPDX-License-Identifier: MPL-2.0
+
+# oapi-codegen configuration for the Qlik Apps API
+# Docs: https://github.com/oapi-codegen/oapi-codegen
+package: qlikapps
+
+generate:
+  # Typed Go structs for all request/response schemas
+  models: true
+  # net/http-compatible client with typed methods per operation
+  client: true
+  # Embedded spec for runtime validation (optional, can be disabled to reduce binary size)
+  embedded-spec: false
+
+output: ../internal/sdk/qlikapps/apps.gen.go
+
+output-options:
+  # Skip unused schema pruning so all types are available for the provider
+  skip-prune: false

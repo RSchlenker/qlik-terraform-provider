@@ -8,6 +8,7 @@ package tools
 import (
 	_ "github.com/hashicorp/copywrite"
 	_ "github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs"
+	_ "github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen"
 )
 
 // Generate copyright headers
@@ -19,4 +20,9 @@ import (
 //go:generate terraform fmt -recursive ../examples/
 
 // Generate documentation.
-//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-dir .. -provider-name scaffolding
+//go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-dir .. -provider-name qlik
+
+// Generate Go SDK from Qlik OpenAPI specs.
+// patchspec fixes spec issues (e.g. undeclared path params) before codegen.
+//go:generate go run ./cmd/patchspec ../specs/qlik-apps.json ../specs/qlik-apps.patched.json
+//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config oapi-codegen-apps.yaml ../specs/qlik-apps.patched.json
