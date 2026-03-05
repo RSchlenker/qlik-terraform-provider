@@ -5,7 +5,6 @@ package provider
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
@@ -132,59 +131,35 @@ func TestAccAppResource(t *testing.T) {
 
 func testAccAppResourceConfig(name string) string {
 	return fmt.Sprintf(`
-provider "qlik" {
-  tenant_id = "%[2]s"
-  region    = "%[3]s"
-  api_key   = "%[4]s"
-}
-
 resource "qlik_app" "test" {
   name        = %[1]q
   description = "Test application for acceptance testing"
 }
-`, name, os.Getenv("QLIK_TENANT_ID"), os.Getenv("QLIK_REGION"), os.Getenv("QLIK_API_KEY"))
+`, name)
 }
 
 func testAccAppResourceConfigUpdated(name string) string {
 	return fmt.Sprintf(`
-provider "qlik" {
-  tenant_id = "%[2]s"
-  region    = "%[3]s"
-  api_key   = "%[4]s"
-}
-
 resource "qlik_app" "test" {
   name        = %[1]q
   description = "Updated test application for acceptance testing"
 }
-`, name, os.Getenv("QLIK_TENANT_ID"), os.Getenv("QLIK_REGION"), os.Getenv("QLIK_API_KEY"))
+`, name)
 }
 
 func testAccAppResourceConfigWithoutDescription(name string) string {
 	return fmt.Sprintf(`
-provider "qlik" {
-  tenant_id = "%[2]s"
-  region    = "%[3]s"
-  api_key   = "%[4]s"
-}
-
 resource "qlik_app" "test" {
   name = %[1]q
 }
-`, name, os.Getenv("QLIK_TENANT_ID"), os.Getenv("QLIK_REGION"), os.Getenv("QLIK_API_KEY"))
+`, name)
 }
 
 func testAccAppResourceConfigWithOwnerId(name string) string {
 	return fmt.Sprintf(`
-provider "qlik" {
-  tenant_id = "%[2]s"
-  region    = "%[3]s"
-  api_key   = "%[4]s"
-}
-
 resource "qlik_app" "test" {
   name     = %[1]q
   owner_id = "some-user-id"
 }
-`, name, os.Getenv("QLIK_TENANT_ID"), os.Getenv("QLIK_REGION"), os.Getenv("QLIK_API_KEY"))
+`, name)
 }

@@ -88,16 +88,16 @@ func (r *AppScriptResource) Configure(ctx context.Context, req resource.Configur
 		return
 	}
 
-	client, ok := req.ProviderData.(*qlikapps.ClientWithResponses)
+	pc, ok := req.ProviderData.(*ProviderClient)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *qlikapps.ClientWithResponses, got: %T", req.ProviderData),
+			fmt.Sprintf("Expected *ProviderClient, got: %T", req.ProviderData),
 		)
 		return
 	}
 
-	r.client = client
+	r.client = pc.Apps
 }
 
 func (r *AppScriptResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
