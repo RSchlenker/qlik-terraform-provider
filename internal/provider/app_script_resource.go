@@ -11,6 +11,7 @@ import (
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -21,6 +22,7 @@ import (
 )
 
 var _ resource.Resource = &AppScriptResource{}
+var _ resource.ResourceWithImportState = &AppScriptResource{}
 
 func NewAppScriptResource() resource.Resource {
 	return &AppScriptResource{}
@@ -254,6 +256,10 @@ func (r *AppScriptResource) Update(ctx context.Context, req resource.UpdateReque
 
 func (r *AppScriptResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Warn(ctx, "qlik_app_script does not support deletion; removing from state only")
+}
+
+func (r *AppScriptResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("app_id"), req, resp)
 }
 
 func (r *AppScriptResource) fetchAndUpdateScriptMetadata(

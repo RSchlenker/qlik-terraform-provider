@@ -4,7 +4,7 @@ schema: 1.1
 partition: tf-ecosystem
 
 summary:
-  owner: team-tf-core-plugins
+  owner: rschlenker
   description: |
-    Quick start repository for creating a Terraform provider using terraform-plugin-framework
+    Terraform provider for Qlik Cloud, enabling infrastructure as code management of Qlik resources including apps, spaces, automations, and scripts.
   visibility: public
