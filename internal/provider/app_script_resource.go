@@ -14,8 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/rschlenker/qlik-terraform-provider/internal/sdk/qlikapps"
@@ -64,9 +62,6 @@ func (r *AppScriptResource) Schema(ctx context.Context, req resource.SchemaReque
 			"script_id": schema.StringAttribute{
 				MarkdownDescription: "The unique identifier of the script.",
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"modified_time": schema.StringAttribute{
 				MarkdownDescription: "The last modification time of the script version.",
@@ -75,9 +70,6 @@ func (r *AppScriptResource) Schema(ctx context.Context, req resource.SchemaReque
 			"modifier_id": schema.StringAttribute{
 				MarkdownDescription: "The identifier of the user who last modified the script.",
 				Computed:            true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 		},
 	}
